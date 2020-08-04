@@ -130,7 +130,8 @@ function throttle(fn, wait) {
   }
 }
 
-// 深拷贝
+// 深拷贝 
+// 只考虑最简单情况，完整的深拷贝需要判断不同类型
 function clone(target, map = new WeakMap()) {
   if (typeof target === 'object') {
     let cloneTarget = Array.isArray(target) ? [] : {}
