@@ -1,37 +1,4 @@
 
-const runStep = (() => {
-  function red() {
-    console.log("red");
-  }
-  function green() {
-    console.log("green");
-  }
-  function yellow() {
-    console.log("yellow");
-  }
-  const light = function (timer, cb) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        cb()
-        resolve()
-      }, timer)
-    })
-  }
-  const step = function () {
-    Promise.resolve().then(() => {
-      return light(3000, red)
-    }).then(() => {
-      return light(2000, green)
-    }).then(() => {
-      return light(1000, yellow)
-    }).then(() => {
-      step()
-    })
-  }
-  return step
-})
-
-
 
 function myNew(fn, ...args) {
   let instance = Object.create(fn.prototype)
@@ -39,9 +6,10 @@ function myNew(fn, ...args) {
   typeof result === 'object' ? result : instance
 }
 
+/* instanceof 运算符用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。 */
 function myInstanceOf(left, right) {
   let rProto = right.prototype
-  let leftProto = left.__proto__
+  let leftProto = Object.getPrototypeOf(left) // Object.getPrototypeOf(left) === left.__proto__
   while (true) {
     if (leftProto === null || leftProto === undefined) {
       return false
@@ -54,9 +22,6 @@ function myInstanceOf(left, right) {
     leftProto = leftProto.__proto__
   }
 }
-
-
-
 Function.prototype.myCall = function (context) {
   context = context || window
   let fn = Symbol(fn)
@@ -86,13 +51,17 @@ Function.prototype.myBind = function (context) {
   let _this = this
   let _args = [...arguments].slice(1)
 
-  return function () {
+  let fun =  function () {
     let args = arguments
     return _this.apply(context, [..._args, ...args])
   }
+
+  fun.prototype = Object.create(_this.prototype)
+
+  return fun
 }
 
-Function.prototype.bindFn = function (argThis) {
+Function.prototype.myBind = function (argThis) {
   if (typeof this !== 'function') {
     throw new TypeError(this + 'must be a function')
   }
@@ -102,6 +71,7 @@ Function.prototype.bindFn = function (argThis) {
     self.apply(argThis, [...args, ...arguments])
   }
 }
+
 
 // 防抖
 function debounce(fn, wait = 1000) {
